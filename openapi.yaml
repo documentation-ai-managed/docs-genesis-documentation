@@ -1,0 +1,131 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: Genesis API
+  license:
+    name: MIT
+servers:
+  - url: https://api.genesis.com/v1
+paths:
+  /ebooks:
+    get:
+      summary: List all ebooks
+      operationId: listEbooks
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: A paged array of ebooks
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ebooks'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new ebook with specified parameters including title, description, and customization options
+      operationId: createEbook
+      responses:
+        201:
+          description: Ebook creation initiated successfully
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ebooks/{ebookId}:
+    get:
+      summary: Retrieve details of a specific ebook by its unique identifier
+      operationId: getEbookById
+      parameters:
+        - name: ebookId
+          in: path
+          required: true
+          description: The unique identifier of the ebook to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: Detailed information about the requested ebook including content, metadata, and customization settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ebooks'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing ebook's content, settings, or customization options
+      operationId: updateEbook
+      responses:
+        200:
+          description: Ebook updated successfully with new content or settings applied
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Permanently remove an ebook from the system and all associated data
+      operationId: deleteEbook
+      responses:
+        204:
+          description: Ebook deleted successfully with no content returned
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Ebook:
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        genre:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Ebooks:
+      type: array
+      items:
+        $ref: '#/components/schemas/Ebook'
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
